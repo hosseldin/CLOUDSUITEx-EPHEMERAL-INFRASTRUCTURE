@@ -1,81 +1,100 @@
-#!/bin/bash
 
-# Configuration from your backend.tf file
+#!/bin/bash
+# Exit immediately if a command exits with a non-zero status.
+set -e
+
+# --- Configuration from backend.tf ---
 RG_NAME="tf-state-rg"
 SA_NAME="tfstatelocker"
 CONTAINER_NAME="tfstate"
 LOCATION="eastus"
+LOG_FILE="./logs/backend_setup_$(date +%Y%m%d_%H%M%S).log"
 
-echo "Starting Azure Backend Setup for Terraform State..."
+# --- Logging Function ---
+# Logs a message to both the console (stdout) and the log file.
+log_message() {
+  local level="$1"
+  local message="$2"
+  local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+  
+  # Format the log line
+  local log_line="[${timestamp}] [${level}] ${message}"
+  
+  # Output to console
+  echo "${log_line}"
+  
+  # Append to log file
+  echo "${log_line}" >> "${LOG_FILE}"
+}
+
+# --- Main Script Start ---
+log_message "INFO" "Script starting. Log file: ${LOG_FILE}"
+log_message "INFO" "Targeting Azure location: ${LOCATION}"
 
 # -----------------------------------------------------------------------------
 # 1. Create Resource Group (Idempotent)
 # -----------------------------------------------------------------------------
-echo "Checking for Resource Group: $RG_NAME..."
-if az group show --name $RG_NAME &>/dev/null; then
-  echo "Resource Group '$RG_NAME' already exists."
+log_message "INFO" "Checking for Resource Group: ${RG_NAME}..."
+if az group show --name "${RG_NAME}" &> /dev/null; then
+  log_message "SKIP" "Resource Group '${RG_NAME}' already exists."
 else
-  echo "Creating Resource Group '$RG_NAME' in '$LOCATION'..."
-  az group create --name $RG_NAME --location $LOCATION --output none
+  log_message "INFO" "Creating Resource Group '${RG_NAME}'..."
+  # Use 'set -x' temporarily to log the actual command being executed
+  set +e # Temporarily disable exit-on-error for the creation check
+  az group create --name "${RG_NAME}" --location "${LOCATION}" 
   if [ $? -eq 0 ]; then
-    echo "Resource Group created successfully."
+    log_message "SUCCESS" "Resource Group created successfully."
   else
-    echo "Error creating Resource Group. Exiting."
+    log_message "ERROR" "Error creating Resource Group. Check Azure permissions. Exiting."
     exit 1
   fi
+  set -e # Re-enable exit-on-error
 fi
 
 # -----------------------------------------------------------------------------
 # 2. Create Storage Account (Idempotent)
 # -----------------------------------------------------------------------------
-echo "Checking for Storage Account: $SA_NAME..."
-if az storage account show --name $SA_NAME --resource-group $RG_NAME &>/dev/null; then
-  echo "Storage Account '$SA_NAME' already exists."
+log_message "INFO" "Checking for Storage Account: ${SA_NAME}..."
+if az storage account show --name "${SA_NAME}" --resource-group "${RG_NAME}" &> /dev/null; then
+  log_message "SKIP" "Storage Account '${SA_NAME}' already exists."
 else
-  echo "Creating Storage Account '$SA_NAME'..."
-  # Note: Storage Account names must be globally unique! 
-  # If this fails, try a more unique name.
+  log_message "INFO" "Creating Storage Account '${SA_NAME}'..."
+  # Note: Storage Account names must be globally unique!
   az storage account create \
-    --name $SA_NAME \
-    --resource-group $RG_NAME \
-    --location $LOCATION \
+    --name "${SA_NAME}" \
+    --resource-group "${RG_NAME}" \
+    --location "${LOCATION}" \
     --sku Standard_LRS \
     --kind StorageV2 \
     --allow-blob-public-access false \
     --output none
-  
-  if [ $? -eq 0 ]; then
-    echo "Storage Account created successfully."
-  else
-    echo "Error creating Storage Account. Exiting. (Check name uniqueness)."
-    exit 1
-  fi
+  log_message "SUCCESS" "Storage Account created successfully."
 fi
 
 # -----------------------------------------------------------------------------
 # 3. Create Blob Container (Idempotent)
 # -----------------------------------------------------------------------------
-echo "Checking for Blob Container: $CONTAINER_NAME..."
+log_message "INFO" "Retrieving Storage Account Key for container creation..."
 
-# To check container existence, we need the Storage Account Key
-SA_KEY=$(az storage account keys list --resource-group $RG_NAME --account-name $SA_NAME --query '[0].value' -o tsv)
+# Retrieve the key securely (output redirected to tsv)
+SA_KEY=$(az storage account keys list --resource-group "${RG_NAME}" --account-name "${SA_NAME}" --query '[0].value' -o tsv)
 
-# Check if the container exists using the key for authentication
+# Check if the container exists
 if az storage container show \
-  --name $CONTAINER_NAME \
-  --account-name $SA_NAME \
-  --account-key $SA_KEY &>/dev/null; then
+  --name "${CONTAINER_NAME}" \
+  --account-name "${SA_NAME}" \
+  --account-key "${SA_KEY}" &> /dev/null; then
   
-  echo "Blob Container '$CONTAINER_NAME' already exists."
+  log_message "SKIP" "Blob Container '${CONTAINER_NAME}' already exists."
 else
-  echo "Creating Blob Container '$CONTAINER_NAME'..."
+  log_message "INFO" "Creating Blob Container '${CONTAINER_NAME}'..."
   az storage container create \
-    --name $CONTAINER_NAME \
-    --account-name $SA_NAME \
-    --account-key $SA_KEY \
+    --name "${CONTAINER_NAME}" \
+    --account-name "${SA_NAME}" \
+    --account-key "${SA_KEY}" \
     --public-access off \
     --output none
-  echo "Blob Container created successfully."
+  log_message "SUCCESS" "Blob Container created successfully."
 fi
 
-echo "Backend setup complete. You can now run 'terraform init'."
+log_message "INFO" "Azure Backend Setup complete. Ready for 'terraform init'."
