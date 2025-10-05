@@ -8,7 +8,17 @@ RG_NAME="tf-state-rg"
 SA_NAME="tfstatelocker"
 CONTAINER_NAME="tfstate"
 LOCATION="eastus"
-LOG_FILE="./logs/backend_setup_$(date +%Y%m%d_%H%M%S).log"
+
+# --- Log Configuration ---
+LOG_DIR="./log" # ⬅️ Define the log folder name relative to the current directory
+LOG_FILE="${LOG_DIR}/backend_setup_$(date +%Y%m%d_%H%M%S).log" # ⬅️ Set the file path
+
+# --- Log Directory Check ---
+if [ ! -d "${LOG_DIR}" ]; then
+  echo "INFO: Log directory '${LOG_DIR}' does not exist. Creating it now..."
+  mkdir -p "${LOG_DIR}"
+  echo "INFO: Directory created."
+fi
 
 # --- Logging Function ---
 # Logs a message to both the console (stdout) and the log file.
