@@ -42,23 +42,25 @@ log_message "INFO" "Script starting. Log file: ${LOG_FILE}"
 log_message "INFO" "Targeting Azure location: ${LOCATION}"
 
 # -----------------------------------------------------------------------------
-# 1. Create Resource Group (Idempotent)
+# 1. Create Resource Group (Idempotent - FIXED)
 # -----------------------------------------------------------------------------
 log_message "INFO" "Checking for Resource Group: ${RG_NAME}..."
-if az group show --name "${RG_NAME}" &> /dev/null; then
-  log_message "SKIP" "Resource Group '${RG_NAME}' already exists."
-else
-  log_message "INFO" "Creating Resource Group '${RG_NAME}'..."
-  # Use 'set -x' temporarily to log the actual command being executed
-  set +e # Temporarily disable exit-on-error for the creation check
-  az group create --name "${RG_NAME}" --location "${LOCATION}" 
-  if [ $? -eq 0 ]; then
+
+# The '!' negates the command's exit status. If 'az group show' fails (resource not found),
+# the 'if' condition becomes true, and we proceed to create it.
+if ! az group show --name "${RG_NAME}" &> /dev/null; then
+  
+  log_message "INFO" "Resource Group '${RG_NAME}' not found. Creating it now..."
+  
+  # Attempt creation. We silence output to /dev/null and check the exit code.
+  if az group create --name "${RG_NAME}" --location "${LOCATION}" &> /dev/null; then
     log_message "SUCCESS" "Resource Group created successfully."
   else
-    log_message "ERROR" "Error creating Resource Group. Check Azure permissions. Exiting."
+    log_message "ERROR" "Failed to create Resource Group. Check Azure permissions. Exiting."
     exit 1
   fi
-  set -e # Re-enable exit-on-error
+else
+  log_message "SKIP" "Resource Group '${RG_NAME}' already exists."
 fi
 
 # -----------------------------------------------------------------------------
