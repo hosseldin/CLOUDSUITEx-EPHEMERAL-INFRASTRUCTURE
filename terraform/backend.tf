@@ -17,3 +17,14 @@
 #
 # ==============================================
 
+terraform {
+  backend "azurerm" {
+    # These values must be created manually in Azure first
+    resource_group_name  = "tf-state-rg"
+    storage_account_name = "tfstatelocker"
+    container_name       = "tfstate"
+    key                  = "vm-deployment.tfstate"
+  }
+  // ... required_providers block follows
+}
+
