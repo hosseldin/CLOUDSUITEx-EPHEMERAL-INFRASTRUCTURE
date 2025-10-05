@@ -1,0 +1,11 @@
+[2025-10-05 19:48:43] [INFO] Script starting. Log file: ./log/backend_setup_20251005_194843.log
+[2025-10-05 19:48:43] [INFO] Targeting Azure location: eastus
+[2025-10-05 19:48:43] [INFO] Checking for Resource Group: tf-state-rg...
+[2025-10-05 19:48:45] [SKIP] Resource Group 'tf-state-rg' already exists.
+[2025-10-05 19:48:45] [INFO] Checking for Storage Account: tfstatelocker01-hosa...
+[2025-10-05 19:48:46] [INFO] Storage Account 'tfstatelocker01-hosa' not found. Attempting creation...
+[2025-10-05 19:48:47] [ERROR] Failed to create Storage Account. Exiting.
+[2025-10-05 19:48:47] [DEBUG] Azure CLI Failure Details (Status AZ_STATUS):
+[2025-10-05 19:48:47] [DEBUG] ERROR: (SubscriptionNotFound) Subscription 6bccb0be-1f23-48a9-acf7-88b5c336d7fa was not found.
+Code: SubscriptionNotFound
+Message: Subscription 6bccb0be-1f23-48a9-acf7-88b5c336d7fa was not found.
