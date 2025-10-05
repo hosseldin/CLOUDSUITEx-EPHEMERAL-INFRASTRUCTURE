@@ -70,8 +70,13 @@ if ! az group show --name "${RG_NAME}" &> /dev/null; then
   
   log_message "INFO" "Resource Group '${RG_NAME}' not found. Attempting creation..."
   
-  # Command: Create the Resource Group
-  if ! execute_az_command "az group create --name \"${RG_NAME}\" --location \"${LOCATION}\" --output none" "Resource Group creation"; then
+  # Command: Create the Resource Group (FIXED QUOTING)
+  # Pass variables unquoted, relying on the outer quotes for grouping.
+  if ! execute_az_command "az group create \
+    --name ${RG_NAME} \
+    --location ${LOCATION} \
+    --output none" \
+    "Resource Group creation"; then
     exit 1 # Exit due to failure handled inside execute_az_command
   fi
 else
@@ -89,10 +94,10 @@ if ! az storage account show --name "${SA_NAME}" --resource-group "${RG_NAME}" &
   log_message "INFO" "Storage Account '${SA_NAME}' not found. Attempting creation..."
   
   # Command: Create the Storage Account
-  SA_CREATE_CMD="az storage account create \
-    --name \"${SA_NAME}\" \
-    --resource-group \"${RG_NAME}\" \
-    --location \"${LOCATION}\" \
+    SA_CREATE_CMD="az storage account create \
+    --name ${SA_NAME} \
+    --resource-group ${RG_NAME} \
+    --location ${LOCATION} \
     --sku Standard_LRS \
     --kind StorageV2 \
     --allow-blob-public-access false \
@@ -112,7 +117,11 @@ fi
 log_message "INFO" "Retrieving Storage Account Key for container creation..."
 
 # The 'az storage account keys list' command should only fail if the RG or SA is missing
-SA_KEY_CMD="az storage account keys list --resource-group \"${RG_NAME}\" --account-name \"${SA_NAME}\" --query '[0].value' -o tsv"
+SA_KEY_CMD="az storage account keys list \
+    --resource-group ${RG_NAME} \
+    --account-name ${SA_NAME} \
+    --query '[0].value' -o tsv"
+
 SA_KEY=$(eval $SA_KEY_CMD) # Use eval here because the command is complex and must run synchronously
 log_message "INFO" "Storage Account Key retrieved."
 
@@ -127,9 +136,9 @@ if ! az storage container show \
   
   # Command: Create the Container
   CONTAINER_CREATE_CMD="az storage container create \
-    --name \"${CONTAINER_NAME}\" \
-    --account-name \"${SA_NAME}\" \
-    --account-key \"${SA_KEY}\" \
+    --name ${CONTAINER_NAME} \
+    --account-name ${SA_NAME} \
+    --account-key ${SA_KEY} \
     --public-access off \
     --output none"
     

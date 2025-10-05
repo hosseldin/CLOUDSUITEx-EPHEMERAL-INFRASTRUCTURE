@@ -1,0 +1,9 @@
+[2025-10-05 20:51:02] [INFO] Script starting. Log file: ./log/backend_setup_20251005_205102.log
+[2025-10-05 20:51:02] [INFO] Targeting Azure location: uaenorth
+[2025-10-05 20:51:02] [INFO] Checking for Resource Group: tf-state-rg...
+[2025-10-05 20:51:04] [INFO] Resource Group 'tf-state-rg' not found. Attempting creation...
+[2025-10-05 20:51:05] [ERROR] Failed to execute: Resource Group creation
+[2025-10-05 20:51:05] [DEBUG] Azure CLI Status Code: 1
+[2025-10-05 20:51:05] [DEBUG] Azure CLI Failure Details: ERROR: (InvalidResourceGroup) The provided resource group name '"tf-state-rg"' has these invalid characters: '""'. The name can only be a letter, digit, '-', '.', '(', ')' or '_'. For more details, visit https://aka.ms/ResourceGroupNamingRestrictions .
+Code: InvalidResourceGroup
+Message: The provided resource group name '"tf-state-rg"' has these invalid characters: '""'. The name can only be a letter, digit, '-', '.', '(', ')' or '_'. For more details, visit https://aka.ms/ResourceGroupNamingRestrictions .
