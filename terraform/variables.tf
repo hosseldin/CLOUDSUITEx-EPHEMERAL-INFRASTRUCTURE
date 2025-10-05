@@ -20,7 +20,7 @@
 variable "location" {
   description = "The Azure region for all resources (e.g., eastus)."
   type        = string
-  default     = "East US"
+  default     = "uaenorth"
 }
 
 variable "project_prefix" {

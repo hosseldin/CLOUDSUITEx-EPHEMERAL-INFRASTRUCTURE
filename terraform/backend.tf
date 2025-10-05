@@ -21,7 +21,7 @@ terraform {
   backend "azurerm" {
     # These values must be created manually in Azure first
     resource_group_name  = "tf-state-rg"
-    storage_account_name = "tfstatelocker"
+    storage_account_name = "tfstatelocker01hosa"
     container_name       = "tfstate"
     key                  = "vm-deployment.tfstate"
   }

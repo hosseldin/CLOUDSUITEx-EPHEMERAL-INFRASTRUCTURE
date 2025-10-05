@@ -1,0 +1,73 @@
+[2025-10-05 20:27:41] [INFO] Script starting. Log file: ./log/backend_setup_20251005_202741.log
+[2025-10-05 20:27:41] [INFO] Targeting Azure location: eastus
+[2025-10-05 20:27:41] [INFO] Checking for Resource Group: tf-state-rg...
+[2025-10-05 20:27:42] [SKIP] Resource Group 'tf-state-rg' already exists.
+[2025-10-05 20:27:42] [INFO] Checking for Storage Account: tfstatelocker01hosa...
+[2025-10-05 20:27:44] [INFO] Storage Account 'tfstatelocker01hosa' not found. Attempting creation...
+[2025-10-05 20:27:45] [ERROR] Failed to execute: Storage Account creation
+[2025-10-05 20:27:45] [DEBUG] Azure CLI Status Code: 1
+[2025-10-05 20:27:45] [DEBUG] Azure CLI Failure Details: ERROR: (RequestDisallowedByPolicy) Resource '"tfstatelocker01hosa"' was disallowed by policy. Reasons: 'You can create resources in the following regions uaenorth, italynorth, polandcentral, spaincentral, germanywestcentral only. For business reasons if you need access to any other regions, please visit aka.ms/regionOptimization for help.'. See error details for policy resource IDs.
+Code: RequestDisallowedByPolicy
+Message: Resource '"tfstatelocker01hosa"' was disallowed by policy. Reasons: 'You can create resources in the following regions uaenorth, italynorth, polandcentral, spaincentral, germanywestcentral only. For business reasons if you need access to any other regions, please visit aka.ms/regionOptimization for help.'. See error details for policy resource IDs.
+Target: "tfstatelocker01hosa"
+Additional Information:Type: PolicyViolation
+Info: {
+    "evaluationDetails": {
+        "evaluatedExpressions": [
+            {
+                "result": "True",
+                "expressionKind": "Field",
+                "expression": "location",
+                "path": "location",
+                "expressionValue": "eastus",
+                "targetValue": [
+                    "uaenorth",
+                    "italynorth",
+                    "polandcentral",
+                    "spaincentral",
+                    "germanywestcentral"
+                ],
+                "operator": "NotIn"
+            },
+            {
+                "result": "True",
+                "expressionKind": "Field",
+                "expression": "location",
+                "path": "location",
+                "expressionValue": "eastus",
+                "targetValue": "global",
+                "operator": "NotEquals"
+            },
+            {
+                "result": "True",
+                "expressionKind": "Field",
+                "expression": "type",
+                "path": "type",
+                "expressionValue": "Microsoft.Storage/storageAccounts",
+                "targetValue": "Microsoft.AzureActiveDirectory/b2cDirectories",
+                "operator": "NotEquals"
+            }
+        ],
+        "reason": "You can create resources in the following regions uaenorth, italynorth, polandcentral, spaincentral, germanywestcentral only. For business reasons if you need access to any other regions, please visit aka.ms/regionOptimization for help."
+    },
+    "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/b86dabb9-b578-4d7b-b842-3b45e95769a1",
+    "policyDefinitionName": "b86dabb9-b578-4d7b-b842-3b45e95769a1",
+    "policyDefinitionDisplayName": "Allowed resource deployment regions",
+    "policyDefinitionVersion": "1.0.0",
+    "policyDefinitionEffect": "deny",
+    "policyAssignmentId": "/subscriptions/6bccb0be-1f23-48a9-acf7-88b5c336d7fa/providers/Microsoft.Authorization/policyAssignments/bfb0d720-4ed6-4fed-b9bd-612c8477d395",
+    "policyAssignmentName": "bfb0d720-4ed6-4fed-b9bd-612c8477d395",
+    "policyAssignmentDisplayName": "Policy Assignment",
+    "policyAssignmentScope": "/subscriptions/6bccb0be-1f23-48a9-acf7-88b5c336d7fa",
+    "policyAssignmentParameters": {
+        "listOfAllowedLocations": [
+            "uaenorth",
+            "italynorth",
+            "polandcentral",
+            "spaincentral",
+            "germanywestcentral"
+        ]
+    },
+    "policyExemptionIds": [],
+    "policyEnrollmentIds": []
+}
