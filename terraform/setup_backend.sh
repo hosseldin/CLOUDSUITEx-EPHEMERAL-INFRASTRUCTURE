@@ -108,3 +108,27 @@ else
 fi
 
 log_message "INFO" "Azure Backend Setup complete. Ready for 'terraform init'."
+
+
+# --- Log Archive Configuration ---
+LOG_ARCHIVE_DIR=".${LOG_DIR}/log_archive"
+
+# --- Main Script Finish & Log Archiving ---
+
+# 1. Create the archive directory if it doesn't exist
+log_message "INFO" "Checking and creating log archive directory..."
+if [ ! -d "${LOG_ARCHIVE_DIR}" ]; then
+  mkdir -p "${LOG_ARCHIVE_DIR}"
+  log_message "SUCCESS" "Created log archive directory..."
+fi
+
+# 2. Check if the script reached this point (success)
+# The 'set -e' at the top ensures that if any command failed, the script would have exited.
+# If we reach this line, the script was successful.
+
+log_message "INFO" "Moving successful log file to archive..."
+mv "${LOG_FILE}" "${LOG_ARCHIVE_DIR}/"
+
+log_message "SUCCESS" "Backend Setup complete. Log moved to ${LOG_ARCHIVE_DIR}/"
+
+exit 0
